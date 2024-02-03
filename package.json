@@ -1,0 +1,11 @@
+{
+  "name": "guest-writing",
+  "version": "1.0.0",
+  "scripts": {
+    "serve": "eleventy --serve"
+  },
+  "author": "Šime Vidas",
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1"
+  }
+}
