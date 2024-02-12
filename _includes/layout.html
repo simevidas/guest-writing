@@ -5,11 +5,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ title }}</title>
-    <link rel="stylesheet" href="../styles.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400;1,700&display=swap"
       rel="stylesheet"
     />
+    <link
+      href="https://unpkg.com/prismjs@1.20.0/themes/prism.css"
+      rel="stylesheet"
+      media="(prefers-color-scheme: light)"
+    />
+    <link
+      href="https://unpkg.com/prismjs@1.20.0/themes/prism-tomorrow.css"
+      rel="stylesheet"
+      media="(prefers-color-scheme: dark)"
+    />
+    <link rel="stylesheet" href="../../styles.css" />
   </head>
   <body>
     <div id="page">
@@ -18,5 +28,19 @@
         {{ content }}
       </main>
     </div>
+    <div id="count"></div>
+    <script>
+      // count total words in all <p> elements and display in corner
+      {
+        let elements = document.querySelectorAll('h1, h2, p');
+        let count = 0;
+        for (let elem of elements) {
+          let text = elem.textContent.trim();
+          let spaces = text.split(/\s+/).length;
+          count += spaces + 1;
+        }
+        document.querySelector('#count').textContent = count;
+      }
+    </script>
   </body>
 </html>
