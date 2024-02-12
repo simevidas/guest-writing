@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How to fix the invisible scrollbar issue in iOS browsers</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/prismjs@1.20.0/themes/prism.css"
+      rel="stylesheet"
+      media="(prefers-color-scheme: light)"
+    />
+    <link
+      href="https://unpkg.com/prismjs@1.20.0/themes/prism-tomorrow.css"
+      rel="stylesheet"
+      media="(prefers-color-scheme: dark)"
+    />
+    <link rel="stylesheet" href="../../styles.css" />
+  </head>
+  <body>
+    <div id="page">
+      <main>
+        <h1>How to fix the invisible scrollbar issue in iOS browsers</h1>
+        <p>The page scrollbar in web browsers serves a useful function: The vertical position of the scrollbar thumb tells the user where they are in the page (their scroll position), while the size (height) of the scrollbar thumb tells them roughly how long the page is. Because scrollbars are useful, they should be clearly visible.</p>
+<p>On Apple’s platforms, most notably on iOS, the page scrollbar is placed inside the viewport and laid on top of web content. In some cases, this can result in a poor contrast between the scrollbar thumb and the page background beneath it. One website that has this problem is <a href="https://webkit.org/blog/">WebKit Blog</a>. The page scrollbar on that website in iOS browsers is almost completely invisible.</p>
+<figure>
+    <img src="media/invisible-scrollbar.png" alt="WebKit Blog article in Safari on iPhone">
+    <figcaption>When scrolling a WebKit Blog article in mobile Safari, the scrollbar is not visible</figcaption>
+</figure>
+<p>I assure you that there is indeed a scrollbar present in the above screenshot, but don’t worry if you can’t spot it. Even a person with perfect vision could probably not say with certainty that they can see a scrollbar in that image. Let’s zoom in to take a closer look at this supposed scrollbar, and maybe we’ll manage to actually see it this time.</p>
+<figure>
+    <img src="media/invisible-scrollbar-closeup.png" alt="Close-up of scrollbar thumb">
+    <figcaption>Even in this close-up, the scrollbar is only barely visible</figcaption>
+</figure>
+<p>The contrast ratio between the scrollbar (<code>#fbfbfb</code>) and page background (<code>#f7f7f7</code>) is 1.03:1. This is only a smidgen above the theoretical minimum of 1:1 (no contrast), which is what you get if you compare a color to itself. For all intents and purposes, the scrollbar is invisible.</p>
+<figure>
+  <video controls playsinline src="media/invisible-scrollbar-demo.mp4" poster="media/invisible-scrollbar-demo-poster.png"></video>
+  <figcaption>Observe how the scrollbar “disappears” as soon as the user scrolls past the page header</figcaption>
+</figure>
+<p>The invisible scrollbar problem is not specific to iOS. It affects Apple’s other platforms as well. However, macOS users can fix this issue by setting the “Show scroll bars” option to “Always” in system settings (in the Appearance section), which causes the scrollbar to be placed in a separate “scrollbar gutter” outside of the viewport in the browser. There is no such option on iOS, so it’s up to the website to ensure that the page scrollbar is clearly visible.</p>
+<p>Websites that are affected by the invisible scrollbar problem can fix this issue by adjusting how they apply CSS background colors to the page. In the future, it will be possible to fix this issue by coloring the scrollbar via the CSS <code>scrollbar-color</code> property, which currently isn’t supported in Safari. <a href="https://github.com/WebKit/standards-positions/issues/134#issuecomment-1708699632">Apple has expressed support for this property</a>, but the implementation in WebKit is blocked on a limitation in lower-level frameworks on Apple’s platforms.</p>
+<pre class="language-css"><code class="language-css"><span class="token selector">html</span> <span class="token punctuation">{</span>
+  <span class="token comment">/* A scrollbar with a gray thumb and a transparent track */</span>
+  <span class="token comment">/* Not yet supported in Safari and other WebKit-based iOS browsers */</span>
+  <span class="token property">scrollbar-color</span><span class="token punctuation">:</span> gray transparent<span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<p>Note that the non-standard CSS <code>::-webkit-scrollbar</code> pseudo-elements are not supported on iOS, so they cannot be used as a fallback for the <code>scrollbar-color</code> property on that platform.</p>
+<h2>What is causing the invisible scrollbar</h2>
+<p>On WebKit Blog, the header and footer have a dark background, while the main content on the page has a light background. The website achieves this by applying a dark background color to the <code>&lt;body&gt;</code> element and a light background color to the <code>&lt;main&gt;</code> element.</p>
+<pre class="language-css"><code class="language-css"><span class="token selector">body</span> <span class="token punctuation">{</span>
+  <span class="token property">background-color</span><span class="token punctuation">:</span> #00253d<span class="token punctuation">;</span> <span class="token comment">/* a dark color */</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector">main</span> <span class="token punctuation">{</span>
+  <span class="token property">background-color</span><span class="token punctuation">:</span> #f7f7f7<span class="token punctuation">;</span> <span class="token comment">/* a light color */</span>
+<span class="token punctuation">}</span></code></pre>
+<p>Since the header and footer don’t have their own background color, they are transparent (in CSS, the <code>background-color</code> property <a href="https://drafts.csswg.org/css-backgrounds-3/#propdef-background-color">defaults</a> to the <code>transparent</code> value), so the <code>&lt;body&gt;</code> element’s dark background is visible through them, resulting in the following appearance:</p>
+<pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>header</span><span class="token punctuation">></span></span>
+    <span class="token comment">&lt;!-- has dark background color --></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>header</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>main</span><span class="token punctuation">></span></span>
+    <span class="token comment">&lt;!-- has light background color --></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>main</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>footer</span><span class="token punctuation">></span></span>
+    <span class="token comment">&lt;!-- has dark background color --></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>footer</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">></span></span></code></pre>
+<p>The page scrollbar in web browsers on Apple’s platforms can have a light and dark appearance. The operating system automatically chooses the scrollbar appearance based on the background colors of the web page. Since WebKit Blog sets a dark background color on the <code>&lt;body&gt;</code> element, the system assumes that the page is mostly dark and chooses the light scrollbar appearance, resulting in an invisible scrollbar against the <code>&lt;main&gt;</code> element’s light background color.</p>
+<h2>How to fix this issue</h2>
+<p>The fix is rather simple. In order to get a dark scrollbar appearance, the page should avoid setting a dark background color on the <code>&lt;html&gt;</code> or <code>&lt;body&gt;</code> elements. In the case of WebKit Blog, the dark background color should be applied directly to the <code>&lt;header&gt;</code> and <code>&lt;footer&gt;</code> elements, while the light background color can be applied to the <code>&lt;main&gt;</code> element or the <code>&lt;body&gt;</code> element (either works).</p>
+<pre class="language-css"><code class="language-css"><span class="token selector">body</span> <span class="token punctuation">{</span>
+  <span class="token property">background-color</span><span class="token punctuation">:</span> #f7f7f7<span class="token punctuation">;</span> <span class="token comment">/* a light color */</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector">header,
+footer</span> <span class="token punctuation">{</span>
+  <span class="token property">background-color</span><span class="token punctuation">:</span> #00253d<span class="token punctuation">;</span> <span class="token comment">/* a dark color */</span>
+<span class="token punctuation">}</span></code></pre>
+<p>I should note that this fix can affect the overscroll effect in some browsers. On WebKit blog, when the user scrolls to the top of the page, the overscroll animation creates an impression that the page header is being stretched. In Safari on macOS, this effect is preserved after applying the fix, but in Chrome it isn’t (I <a href="https://issues.chromium.org/issues/324819919">filed a Chromium issue</a> for this).</p>
+<figure>
+  <video controls playsinline src="media/overscroll-animation.mp4" poster="media/overscroll-animation-poster.png"></video>
+  <figcaption>Safari on the left, Chrome on the right</figcaption>
+</figure>
+<p>Some people may see this as a (minor) degradation in aesthetics, but I think that an invisible scrollbar is a much bigger problem for users, and websites should prioritize usability over elegance.</p>
+
+      </main>
+    </div>
+    <div id="count"></div>
+    <script>
+      // count total words in all <p> elements and display in corner
+      {
+        let elements = document.querySelectorAll('h1, h2, p');
+        let count = 0;
+        for (let elem of elements) {
+          let text = elem.textContent.trim();
+          let spaces = text.split(/\s+/).length;
+          count += spaces + 1;
+        }
+        document.querySelector('#count').textContent = count;
+      }
+    </script>
+  </body>
+</html>

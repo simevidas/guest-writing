@@ -50,7 +50,8 @@ a {
 
 figure {
   outline: 1px dashed var(--text-color);
-  margin: 0;
+  outline-offset: -1px;
+  margin-inline: 0;
   padding: 1em;
 }
 
@@ -66,10 +67,18 @@ video {
   height: auto;
 }
 
-nav {
-  margin-block: 3em;
+pre {
+  margin-block: 1em !important; /* override Prism */
 }
 
-nav li {
-  margin-top: 0.6ch;
+code {
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  font-size: 88% !important; /* override Prism */
+}
+
+#count {
+  position: fixed;
+  top: 1ch;
+  right: 1ch;
+  font-size: 88%;
 }
